@@ -202,7 +202,7 @@ def mainLogin():
                 driver.find_element_by_id('boxCountBox').send_keys(str(getPtCnt))
                 # 박스 선택및 믹스 파렛트 수량 입력
                 driver.find_element_by_id('box_3').send_keys(str(getPtCnt))
-                driver.find_element_by_id('mixPltCount').send_keys(str(getPtCnt))
+                driver.find_element_by_id('mixPltCount').send_keys(str(1))
 
                 # 수량 및 무게 입력
 
@@ -279,4 +279,3 @@ mainLogin()
 
 
 # driver.close()
-

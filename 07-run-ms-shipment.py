@@ -28,8 +28,8 @@ from pynput.keyboard import Key, Controller
 api = 'gspread.json'
 
 scope = ['https://spreadsheets.google.com/feeds',
-   'https://www.googleapis.com/auth/drive']
-creds = ServiceAccountCredentials.from_json_keyfile_name(api , scope)
+         'https://www.googleapis.com/auth/drive']
+creds = ServiceAccountCredentials.from_json_keyfile_name(api, scope)
 client = gspread.authorize(creds)
 
 ##########################################################################################
@@ -77,6 +77,10 @@ def mainLogin() :
     driver.find_element_by_class_name('btn.btn-primary').click()  # 로그린 버튼 클릭
     waitTime('s')
 
+    complex = {}
+    complex = dict()
+
+
 
     #전세터 발주 파일 가져오기
     doc = client.open_by_url(
@@ -86,21 +90,21 @@ def mainLogin() :
     manageSheet = doc.worksheet('발주리스트관리')
 
     try :
-        urlData = manageSheet.find(getIndate)
+        urlData = manageSheet.find(string(getIndate))
         # urlData = manageSheet.find('2020-07-30')
     except :
        print('발주요일이 없습니다. 프로그램을 중단합니다.')
        exit()
 
-    while True:
-       try:
-           targetDateUrl = manageSheet.cell(urlData.row, 4).value
+    while 1:
+        try :
+            targetDateUrl = manageSheet.cell(urlData.row, ).value
+            break
+        except:
+            print("error : 발주리스트 관리 - 링크 Load error")
+            exit()
+            continue
 
-           # targetDateUrl = 'https://docs.google.com/spreadsheets/d/1LEJ2NJ8PeIhaqveFhUDWm7cUsSMSjxg8yVLbUdCi0Ak/edit#gid=0'
-           break
-       except:
-           print("error : 발주리스트 관리 - 링크 Load error")
-           continue
 
     # 입고일 파일로 이동 후 작업시작
     doc = client.open_by_url(targetDateUrl)
@@ -117,11 +121,11 @@ def mainLogin() :
 
     print ('관리시트를 찾았습니다. 다음으로 진행합니다.')
 
-    for findShipmentText in range( 22, 55, 1) :
+    for findShipmentText in range( 23, 55, 1) :
 
        #  발주 타입중 쉽먼트를 가져온다.
 
-       for LastCenter in range ( findShipmentText + 1 , 100, 1) :
+       for LastCenter in range ( findShipmentText  , 100, 1) :
            while True:
                try:
                    isEmpty = manageSheet.cell(LastCenter, 2).value
@@ -153,34 +157,50 @@ def mainLogin() :
                try:
                    driver.find_element_by_xpath('//*[@id="goCreate"]').click()
                    break
-               except:
-                   continue
+               except:  continue
            waitTime('s')
 
            while True:
                try:
                    getStatus = manageSheet.cell(LastCenter , 5).value  # 상태 가져오기
                    break
-               except:
-                   continue
+               except:  continue
 
 
            #송장 번호 배열 생성
 
            getPtCnt = 0
            deliveryCompany = 0
+           boxCurrent = 1
            if getStatus != 'v':
-               getCenter = manageSheet.cell(LastCenter , 2).value  # 센터 이름
+               # 센터 이름
+               getCenter = manageSheet.cell(LastCenter , 2).value
 
                #박스 수량 알아내기
                getBoxCnt = manageSheet.cell(LastCenter , 3).value
 
-               #혼재내역
-               complexCont = manageSheet.cell(LastCenter , 8).value
-               sComCont = complexCont.split('/')    # complexCont 는 15680371,16071966/16503622,27344176,27344178/27344174 이런식이다.
-               print ( len(sComCont))
-
                print(getCenter + " 센터 / " + str(getBoxCnt) + " 박스 작업 합니다")
+
+               globals()[getCenterData] = {'a': 100, 'b': 200}
+
+
+               #혼재내역
+               for bq in range(8, 16,1):
+                   while true :
+                       try :
+                            getSKUinfo = manageSheet.cell(LastCenter , bq).value
+                            break
+                       except : continue
+                   if getSKUinfo != None :
+                       splitData = getSKUinfo.split(',')
+                       for getNano in splitData:
+                           getCenterData = { getNano.strip() : boxCurrent }  #현재의 스큐정보가 몇번 박스 인지 저장한다.
+                   elif getSKUinfo == None :
+                       break    # 더이상 박스 SKU 수집하지 않음
+                   print (getCenterData)
+                   boxCurrent += 1
+
+
 
                # 센터이름 바꾸기
                if getCenter == '평택' :
@@ -226,32 +246,29 @@ def mainLogin() :
                currentBoxCnt =1
 
                # 한박스 넘을때만 작업
-               if len(sComCont) > 1 :
+               if getBoxCnt > 1 :
 
-                   # 여러개의 코드가 있는 상황
-                   for getBox in sComCont :    #SComCont 는 123323, 123232 이런식이다
-                       sperateBoxCode = getBox.split(',')
+                   # 한박스에 여러개의 SKU 가 있는 상황
 
-                       #한코드에 2,3개가 혼재
-                       for confirmBox in sperateBoxCode :
-                            getTableSku = driver.find_element_by_xpath('/html[1]/body/div[1]/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(rowCnt) + ']/td[2]').text
-                            if getTableSku == confirmBox :
-                                driver.find_element_by_xpath(
-                                    '/html[1]/body[1]/div[1]/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(
-                                        rowCnt) + ']/td[7]/div[' + str(
-                                        targetBox) + ']/select/option[' + str(currentBoxCnt) + ']').click()  # 박스 선택
-                            getIntQty = driver.find_element_by_xpath('/html[1]/body/div[1]/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(rowCnt) + ']/td[6]').text
-
+                   for confirmBox in sperateBoxCode :
+                        getTableSku = driver.find_element_by_xpath('/html[1]/body/div[1]/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(rowCnt) + ']/td[2]').text
+                        if getTableSku == confirmBox :
                             driver.find_element_by_xpath(
-                                '/html[1]/body[1]/div[1]/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(rowCnt) + ']/td[8]/input').clear()  # 기존수량 삭제
+                                '/html[1]/body[1]/div[1]/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(
+                                    rowCnt) + ']/td[7]/div[' + str(
+                                    targetBox) + ']/select/option[' + str(currentBoxCnt) + ']').click()  # 박스 선택
+                        getIntQty = driver.find_element_by_xpath('/html[1]/body/div[1]/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(rowCnt) + ']/td[6]').text
 
-                            driver.find_element_by_xpath('/html[1]/body[1]/div[1]/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(rowCnt) + ']/td[8]/input').send_keys(
-                                    getIntQty)  # 수량입력
+                        driver.find_element_by_xpath(
+                            '/html[1]/body[1]/div[1]/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(rowCnt) + ']/td[8]/input').clear()  # 기존수량 삭제
+
+                        driver.find_element_by_xpath('/html[1]/body[1]/div[1]/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(rowCnt) + ']/td[8]/input').send_keys(
+                                getIntQty)  # 수량입력
 
 
 
-                            rowCnt += 1
-                       currentBoxCnt += 1
+                        rowCnt += 1
+                   currentBoxCnt += 1
 
 
 

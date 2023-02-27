@@ -143,9 +143,9 @@ def mainLogin(firstCheck):
             getOrderCenter = driver.find_element_by_xpath(
                 '/html/body/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(fi) + ']/td[13]')  # 센터
             getOrderQty = driver.find_element_by_xpath(
-                '/html/body/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(fi) + ']/td[14]')  # 수량
+                '/html/body/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(fi) + ']/td[15]')  # 수량
             getOrderMoney = driver.find_element_by_xpath(
-                '/html/body/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(fi) + ']/td[16]')  # 금액
+                '/html/body/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(fi) + ']/td[17]')  # 금액
             getNowState = driver.find_element_by_xpath(
                 '/html/body/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(fi) + ']/td[5]')  # 발주 상태
 
@@ -246,7 +246,7 @@ def mainLogin(firstCheck):
 
                                 print ('시트 선택중 오류 - Don\'t worry')
                                 breakCnt += 1
-                                if ( breakCnt == 10) :
+                                if ( breakCnt > 10) :
                                     print("시트가 생성 안되어 있는 경우 일수 있음. 자동 시트 생성")
                                     print("신규 센터 시트 생성")
                                     eprintcnt = 1

@@ -448,7 +448,7 @@ def mainLogin():
             print(pickCenter + " 작업 완료!")
 
     waitTime('s')
-
+    driver.close()     
 
 
 mainLogin()

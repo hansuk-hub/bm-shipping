@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 from bs4 import BeautifulSoup
@@ -16,8 +17,8 @@ import shutil
 
 ## 생성될 위치를 꼭 미리 만들어 놓는다.
 
-targetDir = 'd:/coupang/shipment/'
-downloadDir = 'C:/Users/tempe/Downloads/'
+targetDir = 'C:\\works\\bm-shipping\\document\\shipment\\'
+downloadDir = 'C:\\Users\\tempe\\Downloads\\'
 ##########################################################################################
 
 while (1):
@@ -34,7 +35,7 @@ while (1):
 #############################################################################################
 
 
-driver: WebDriver = webdriver.Chrome('C:\chromedriver.exe')
+driver: WebDriver = webdriver.Chrome('C:\works\chromedriver.exe')
 
 
 def waitTime(stayTime):
@@ -47,10 +48,10 @@ def waitTime(stayTime):
 
 def mainLogin():
     driver.get('https://supplier.coupang.com/')
-    driver.find_element_by_name('username').send_keys('manyalittle')
-    driver.find_element_by_name('password').send_keys('wsjang5566#')
+    driver.find_element(By.NAME, 'username').send_keys('manyalittle')
+    driver.find_element(By.NAME, 'password').send_keys('wsjang555#')
     waitTime('s')
-    driver.find_element_by_class_name('btn.btn-primary').click()  # 로그린 버튼 클릭
+    driver.find_element(By.CLASS_NAME, 'btn.btn-primary').click()  # 로그린 버튼 클릭
     waitTime('s')
 
     try:
@@ -63,11 +64,11 @@ def mainLogin():
             'https://supplier.coupang.com/ibs/asn/active')
         waitTime('s')
 
-    driver.find_element_by_id('edd').click()
-    driver.find_element_by_id('edd').clear()
-    driver.find_element_by_id('edd').send_keys(getIndate)
+    driver.find_element(By.ID,'edd').click()
+    driver.find_element(By.ID,'edd').clear()
+    driver.find_element(By.ID,'edd').send_keys(getIndate)
     waitTime('s')
-    driver.find_element_by_id('edd').send_keys(Keys.ENTER)
+    driver.find_element(By.ID,'edd').send_keys(Keys.ENTER)
 
     waitTime('l')
 
@@ -91,7 +92,7 @@ def mainLogin():
             btnPostion2 = 5
 
         for curPosition in range(1, pageDownCount, 1):
-            getCenterName = driver.find_element_by_xpath(
+            getCenterName = driver.find_element(By.XPATH,
                 '//*[@id="parcel-tab"]/tbody/tr[' + str(curPosition) + ' ]/td[7]').text
             mp4Dir = targetDir + str(getCenterName).strip()
             print(mp4Dir)
@@ -103,18 +104,18 @@ def mainLogin():
                 exit()
 
             # 임시 테스트   - 발송 완료 상태
-            # driver.find_element_by_xpath('//*[@id="parcel-tab"]/tbody/tr['+ str(curPosition) +']/td[10]/button[2]').click()
+            # driver.find_element(By.XPATH,'//*[@id="parcel-tab"]/tbody/tr['+ str(curPosition) +']/td[10]/button[2]').click()
             #
             # waitTime('s')
-            # driver.find_element_by_xpath(
+            # driver.find_element(By.XPATH,
             #     '//*[@id="parcel-tab"]/tbody/tr[' + str(curPosition) + ']/td[10]/button[3]').click()
             # waitTime('s')
 
             # 기존것
-            driver.find_element_by_xpath(
+            driver.find_element(By.XPATH,
                 '//*[@id="parcel-tab"]/tbody/tr[' + str(curPosition) + ']/td[10]/button[' + str(btnPostion1) + ']').click()
             waitTime('s')
-            driver.find_element_by_xpath(
+            driver.find_element(By.XPATH,
                 '//*[@id="parcel-tab"]/tbody/tr[' + str(curPosition) + ']/td[10]/button[' + str(btnPostion2) + ']').click()
             waitTime('s')
 
@@ -129,7 +130,7 @@ def mainLogin():
                 shutil.move(getFile, mp4Dir)
 
         curPage = curPage + 2
-        if (endPageNum > 1):  driver.find_element_by_xpath('//*[@id="parcel-pagination"]/ul/li[' + str(curPage) + ']/a').click()
+        if (endPageNum > 1):  driver.find_element(By.XPATH,'//*[@id="parcel-pagination"]/ul/li[' + str(curPage) + ']/a').click()
 
     waitTime('l')
 

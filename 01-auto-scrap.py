@@ -2,7 +2,8 @@
 
 ## 시트 생성 부분 체크하기 try exception 한번으로 끝남.
 from selenium import webdriver
-from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 import urllib.request
@@ -48,7 +49,15 @@ while (1):
 # options.add_argument("user-data-dir=C:\\Users\\tempe\\AppData\\Local\\Google\\Chrome\\User Data") #Path to your chrome profile
 # driver: WebDriver = webdriver.Chrome('C:\chromedriver.exe', options=options)
 
-driver: WebDriver = webdriver.Chrome('C:\chromedriver.exe')
+
+options = webdriver.ChromeOptions()
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option("useAutomationExtension", False)
+service = ChromeService(executable_path=r'C:\works\chromedriver.exe')
+
+
+driver = webdriver.Chrome(service=service, options=options)
+
 
 def waitTime(stayTime):
     if stayTime == 's':
@@ -61,10 +70,10 @@ def waitTime(stayTime):
 def mainLogin(firstCheck):
     if firstCheck == 0:
         driver.get('https://supplier.coupang.com/')
-        driver.find_element_by_name('username').send_keys('manyalittle')
-        driver.find_element_by_name('password').send_keys('wsjang5566#')
+        driver.find_element(By.NAME, 'username').send_keys('manyalittle')
+        driver.find_element(By.NAME,'password').send_keys('wsjang555#')
         waitTime('s')
-        driver.find_element_by_class_name('btn.btn-primary').click()  # 로그린 버튼 클릭
+        driver.find_element(By.CLASS_NAME,'btn.btn-primary').click()  # 로그린 버튼 클릭
         waitTime('s')
 
     while 1 :
@@ -138,15 +147,15 @@ def mainLogin(firstCheck):
 
         # 발주리스트 페이지로 이동
         for fi in range(1, dealCount + 1, 1):
-            getOrderNumber = driver.find_element_by_xpath(
+            getOrderNumber = driver.find_element(By.XPATH,
                 '/html/body/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(fi) + ']/td[2]/a')  # 발주 번호
-            getOrderCenter = driver.find_element_by_xpath(
+            getOrderCenter = driver.find_element(By.XPATH,
                 '/html/body/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(fi) + ']/td[13]')  # 센터
-            getOrderQty = driver.find_element_by_xpath(
+            getOrderQty = driver.find_element(By.XPATH,
                 '/html/body/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(fi) + ']/td[15]')  # 수량
-            getOrderMoney = driver.find_element_by_xpath(
+            getOrderMoney = driver.find_element(By.XPATH,
                 '/html/body/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(fi) + ']/td[17]')  # 금액
-            getNowState = driver.find_element_by_xpath(
+            getNowState = driver.find_element(By.XPATH,
                 '/html/body/div[2]/div[2]/div[2]/div[4]/table/tbody/tr[' + str(fi) + ']/td[5]')  # 발주 상태
 
             dealCenter.append(getOrderCenter.text)  # 센터 저장
@@ -188,7 +197,7 @@ def mainLogin(firstCheck):
             print("Target Center : " + getCenter)
 
             # 바코드 및 상품명 저장
-            spName = driver.find_elements_by_class_name('list-group-item')
+            spName = driver.find_elements(By.CLASS_NAME,'list-group-item')
             for item in spName:
                 chkText = item.text
                 if (chkText.find('회송됩니다.') > 1):
@@ -202,7 +211,7 @@ def mainLogin(firstCheck):
                         codeChk = 0
 
             # 상품 번호 저장
-            pCode = driver.find_elements_by_class_name('sku-seq')
+            pCode = driver.find_elements(By.CLASS_NAME,'sku-seq')
             for itemPcode in pCode:
                 proCodeBox.append(itemPcode.text)
 
@@ -253,6 +262,16 @@ def mainLogin(firstCheck):
                                     while 1 :
                                         try:
                                             newSheet = doc.add_worksheet(title=getCenter, rows="1000", cols="20")
+                                            while 1 :
+                                                try :
+                                                    newSheet.insert_row(
+                                                        [
+                                                            "순번",    "SKU",    "상품명", "", "센터",    "입고 요청수량",    "발주번호",    "입력일",    "이미지",
+                                                            "입력위치","", "입고 가능수량",    "쉽먼트 박스 번호"
+                                                        ], 1
+                                                    )
+                                                    break
+                                                except : continue
                                             break
                                         except Exception as e:
                                             if (eprintcnt == 10):

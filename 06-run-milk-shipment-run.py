@@ -1,8 +1,8 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.keys import Keys
 import math
 import urllib.request
 from bs4 import BeautifulSoup
@@ -46,7 +46,11 @@ while (1):
 #############################################################################################
 
 
-driver: WebDriver = webdriver.Chrome('C:\works\chromedriver.exe')
+options = webdriver.ChromeOptions()
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option("useAutomationExtension", False)
+service = ChromeService(executable_path=r'C:\works\chromedriver.exe')
+driver = webdriver.Chrome(service=service, options=options)
 
 # def centerInfo():
 
@@ -60,10 +64,10 @@ def waitTime(stayTime):
 
 def mainLogin():
     driver.get('https://supplier.coupang.com/')
-    driver.find_element(By.NAME, 'username').send_keys('manyalittle')
-    driver.find_element(By.NAME, 'password').send_keys('wsjang555#')
+    driver.find_element(By.NAME,'username').send_keys('manyalittle')
+    driver.find_element(By.NAME,'password').send_keys('wsjang555#')
     waitTime('s')
-    driver.find_element(By.CLASS_NAME, 'btn.btn-primary').click()  # 로그린 버튼 클릭
+    driver.find_element(By.CLASS_NAME,'btn.btn-primary').click()  # 로그린 버튼 클릭
     waitTime('s')
 
     # 전세터 발주 파일 가져오기
@@ -105,42 +109,59 @@ def mainLogin():
             continue
 
 
-    for i in range(2, 21, 1):
+    for i in range(23, 54, 1):
         while 1 :
             try:
                 driver.get(
                     'https://supplier.coupang.com/milkrun/saveform')
+                waitTime('s')
+                # 체크박스 확인
+                driver.find_element(By.XPATH, '//label[@for="checkbox"]').click()
+                # driver.find_element(By.XPATH,'//*[label]').click()
+                waitTime('s')
+                driver.find_element(By.XPATH,'/html/body/div[4]/div[2]/div/div[3]/div/div/button').click()
+                waitTime('s')
                 break
-            except:
+            except Exception as e:  # 모든 예외의 에러 메시지를 출력할 때는 Exception을 사용
+                print('예외가 발생했습니다.', e)
                 waitTime('s')
                 continue
         waitTime('s')
 
-        # 체크박스 확인
-        driver.find_element(By.XPATH,'//*[@id="checkbox"]').click()
-        waitTime('s')
-        driver.find_element(By.XPATH, '/html/body/div[4]/div[2]/div/div[3]/div/div/button').click()
-        waitTime('s')
 
-        getType = manageSheet.cell(i, 2).value
-        getStatus = manageSheet.cell(i, 5).value  # 상태
-        getCenter = manageSheet.cell(i, 2).value  # 센터 이름
+        while 1 :
+            try :
+
+                getType = manageSheet.cell(i, 2).value
+                getStatus = manageSheet.cell(i, 5).value  # 상태
+                getCenter = manageSheet.cell(i, 2).value  # 센터 이름
+                break
+            except : continue
 
         # 센터 없을경우 작업종료
         if getCenter == None:
-            print('센터가 없음으로 작업종료')
+            print('더이상 확정 센터가 없음으로 작업종료')
             break  # 밀크런 작업 종료
 
         print ( getType)
 
         if getType != None :
-            getPtCnt = manageSheet.cell(i, 3).value  # 발렛트 수량
-            getQty = manageSheet.cell(i, 4).value  # 총입고 수량
+            while 1 :
+                try :
+
+                    getQty = manageSheet.cell(i, 3).value  # 총 박스 수량 (C열)
+                    get2boxCnt = manageSheet.cell(i, 6).value  # 2호 박스 수량
+                    get3boxCnt = manageSheet.cell(i, 7).value  # 3호 박스 수량
+                    break
+                except :
+                    print ("구글 시트로 부터 데이터 로딩중 오류 - Don't worry")
+                    continue
+
             if getQty == None:
                 print('입고 수량 표기 누락으로 작업 종료')
                 exit()
                 break  # 밀크런 작업 종료
-            sendWeight = float(getQty) * 0.8 # 무게
+            # sendWeight = float(getQty) * 0.8 # 무게
 
 
             # 날짜 설정
@@ -151,37 +172,25 @@ def mainLogin():
 
 
             if getStatus != 'v' or getStatus == '불가능' :
-                print(getCenter + " 센터 " + getPtCnt + " 개 팔렛트를 확정 시작 합니다")
+                print(getCenter + " 센터 " + getQty + " 개 박스를 확정 시작 합니다")
                 try:
                     # s1 = driver.find_element(By.XPATH,'//*[@id="centerCodeSearch"]')
                     # s1.send_keys(getCenter)
                     select = Select(driver.find_element(By.ID,'centerCodeSearch'))
 
                     # select by visible text
-                    if getCenter == 'XRC01(RC)' :
+                    if getCenter == 'XRC01(RC)':
                         getCenter = 'XRC01'
-                    elif getCenter == 'XRC02(RC)' :
+                    elif getCenter == 'XRC02(RC)':
                         getCenter = 'XRC02'
-                    elif getCenter == 'XRC03(RC)' :
+                    elif getCenter == 'XRC03(RC)':
                         getCenter = 'XRC03'
-                    elif getCenter == 'XRC04(RC)' :
-                        getCenter = 'XRC04'
-                    elif getCenter == 'XRC05(RC)' :
-                        getCenter = 'XRC05'
-                    elif getCenter == 'XRC06(RC)' :
-                        getCenter = 'XRC06'
-                    elif getCenter =='인천13(RC)' :
-                        getCenter ='인천13'
-                    elif getCenter =='곤지암2(RC)' :
-                        getCenter ='곤지암2'
+                    elif getCenter == '인천13(RC)':
+                        getCenter = '인천13'
+                    elif getCenter == '곤지암2(RC)':
+                        getCenter = '곤지암2'
                     elif getCenter == '경기광주1':
                         getCenter = '광주'
-                    elif getCenter == '인천27(RC)':
-                        getCenter = '인천27'
-                    elif getCenter == '대구7(RC)':
-                        getCenter = '대구7'
-                    elif getCenter == 'XRC07(RC)':
-                        getCenter = 'XRC07'
 
                     select.select_by_visible_text(getCenter)
                     waitTime('s')
@@ -192,10 +201,10 @@ def mainLogin():
                 # 검색 버튼 클릭
                 driver.find_element(By.ID,'search').click()
                 waitTime('s')
-                waitTime('s')
+
                 # 내용 입력 시작
                 # 해당 발주서 클릭
-                aaa = driver.find_elements(By.NAME,'addPurchaseOrder')
+                aaa = driver.find_elements(By.NAME, 'addPurchaseOrder')
                 btnCnt = 0
                 for bb in aaa:
                     bb.click()
@@ -211,8 +220,9 @@ def mainLogin():
                     try:
                         driver.find_element(By.ID,'releaseAddressImport').click()
                         waitTime('s')
-                        driver.find_element(By.XPATH,"//button[@data-supplier-milkrun-location-seq='27819']").click()
-                        # driver.find_element(By.XPATH,"//button[@data-supplier-milkrun-location-seq='27820']").click()
+                        driver.find_element(By.XPATH,"//button[@data-supplier-milkrun-location-seq='27820']").click()
+                        waitTime('s')
+                        waitTime('s')
                         waitTime('s')
                         break
                     except:
@@ -220,33 +230,24 @@ def mainLogin():
                         continue
 
                 # 수량 및 무게 입력력
-                driver.find_element(By.ID,'boxCount').send_keys(str(getQty))
-                driver.find_element(By.ID,'weight').send_keys(str(sendWeight))
-                driver.find_element(By.ID,'contents').send_keys('인형')
 
-                # 팔렛트 추가
-                driver.find_element(By.ID,'addPallet').click()
-                waitTime('s')
-                waitTime('s')
+                driver.find_element(By.ID,'boxCountBox').send_keys(str(getQty))    #총 박스 수량 (발주확정시트 C열의 값)
+                driver.find_element(By.ID,'weightBox').send_keys(str(10))    #총 중량
+                driver.find_element(By.ID,'mixPltCount').send_keys(str(1))   #믹스 팔렛트 수량
+                driver.find_element(By.ID,'contentsBox').send_keys('인형')
+                driver.find_element(By.ID,'box_2').send_keys(str(get2boxCnt))
+                driver.find_element(By.ID,'box_3').send_keys(str(get3boxCnt))
 
-                # 팔렛트 수량 기입
-                driver.find_element(By.ID,'count_1').clear()
-                alert = driver.switch_to.alert
-                if (alert):
-                    alert.accept()
-                    waitTime('s')
-                driver.find_element(By.ID,'count_1').send_keys(getPtCnt)
-                waitTime('s')
 
                 # 버튼 클릭 및 팔렛트 입력
                 driver.find_element(By.XPATH,
-                    "//select[@id='allocationReply']/option[@value='Y']").click()
+                    "//select[@id='allocationReplyBox']/option[@value='Y']").click()
                 driver.find_element(By.XPATH,
-                    "//select[@id='loadUp']/option[@value='Y']").click()
+                    "//select[@id='loadUpBox']/option[@value='Y']").click()
                 driver.find_element(By.XPATH,
-                    "//select[@id='forklift']/option[@value='Y']").click()
+                    "//select[@id='forkliftBox']/option[@value='Y']").click()
                 driver.find_element(By.XPATH,
-                    "//select[@id='pltRentalCompany']/option[@value='아주팔레트']").click()
+                    "//select[@id='pltRentalCompanyBox']/option[@value='아주팔레트']").click()
                 driver.find_element(By.ID,'milkrunGuidCheck1').click()
                 driver.find_element(By.ID,'milkrunGuidCheck2').click()
                 driver.find_element(By.ID,'milkrunGuidCheck3').click()
@@ -255,8 +256,10 @@ def mainLogin():
                 dealCount = driver.page_source
                 dealFindText = dealCount.count('밀크런 수정 가능한 시간이 마감되었습니다.')
 
+
                 if dealFindText > 0:
                     print('밀크런 신청 불가능 센터(또는 신청시간 마감) 입니다.')
+                    print("작업중 문제!!!!!!!!!!!!!!!!!!!!!")
                     manageSheet.update_cell(i, 4, "불가능")
                 elif dealFindText == 0:
                     driver.find_element(By.ID,'saveMilkrun').click()
@@ -280,7 +283,7 @@ def mainLogin():
 
     waitTime('s')
 
-    print("밀크런 달리기 끝.")
+    print("밀크런 - 쉽먼트 달리기 끝.")
 
     driver.close()
 

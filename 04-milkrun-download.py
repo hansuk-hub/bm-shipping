@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-
+from selenium.webdriver.common.by import By
 
 import urllib.request
 from bs4 import BeautifulSoup
@@ -52,14 +52,14 @@ while (1):
 options = webdriver.ChromeOptions()
 
 options.add_experimental_option("prefs", {
-  "download.default_directory": r"C:\coupang\bm-shipping\milkrun",
+  "download.default_directory": "C:\\works\\bm-shipping\\document\\milkrun\\",
   "download.prompt_for_download": False,
   "download.directory_upgrade": False,
   "plugins.always_open_pdf_externally": True,
   "safebrowsing.enabled": False
 })
 
-driver = webdriver.Chrome(chrome_options=options, executable_path="C:\chromedriver.exe")
+driver = webdriver.Chrome(chrome_options=options, executable_path="C:\works\chromedriver.exe")
 
 
 action = ActionChains(driver)
@@ -74,10 +74,10 @@ def waitTime(stayTime):
 
 def mainLogin():
     driver.get('https://supplier.coupang.com/')
-    driver.find_element_by_name('username').send_keys('manyalittle')
-    driver.find_element_by_name('password').send_keys('wsjang5566#')
+    driver.find_element(By.NAME, 'username').send_keys('manyalittle')
+    driver.find_element(By.NAME, 'password').send_keys('wsjang555#')
     waitTime('s')
-    driver.find_element_by_class_name('btn.btn-primary').click()  # 로그린 버튼 클릭
+    driver.find_element(By.CLASS_NAME, 'btn.btn-primary').click()  # 로그린 버튼 클릭
     waitTime('s')
 
     try:
@@ -89,33 +89,33 @@ def mainLogin():
             'https://supplier.coupang.com/milkrun/milkrunList')
     waitTime('s')
 
-    driver.find_element_by_name('startDate').clear()
-    driver.find_element_by_name('startDate').send_keys(getIndate)
-    driver.find_element_by_name('endDate').clear()
-    driver.find_element_by_name('endDate').send_keys(getIndate)
-    driver.find_element_by_id('search').click()
+    driver.find_element(By.NAME,'startDate').clear()
+    driver.find_element(By.NAME,'startDate').send_keys(getIndate)
+    driver.find_element(By.NAME,'endDate').clear()
+    driver.find_element(By.NAME,'endDate').send_keys(getIndate)
+    driver.find_element(By.ID,'search').click()
 
     waitTime('s')
 
     dealCount = driver.page_source
     dealCount = dealCount.count('PALLET')
 
-    targetDir = 'c:/coupang/bm-shipping/milkrun/'
-    downloadDir = 'c:/coupang/bm-shipping/milkrun/'
+    targetDir = r'C:\\works\\bm-shipping\\document\\milkrun\\'
+    downloadDir = r'C:\\works\\bm-shipping\\document\\milkrun\\'
 
     print ( "총 "+ str(dealCount) + "개의 밀크런 접수내역 파일을 다운 받습니다.")
     for i in range(0, dealCount, 1):
         try :
-            postionChk = driver.find_element_by_xpath('//*[@id="milkrunListTable"]/tbody/tr[' + str(i + 1) + ']/td[19]/span[6]')
+            postionChk = driver.find_element(By.XPATH,'//*[@id="milkrunListTable"]/tbody/tr[' + str(i + 1) + ']/td[19]/span[6]')
             clickPosition = 4
         except :
             clickPosition = 3
 
 
         print("클릭 포지션 체크 : " + str(clickPosition))
-        driver.find_element_by_xpath(
+        driver.find_element(By.XPATH,
                 '//*[@id="milkrunListTable"]/tbody/tr[' + str(i + 1) + ']/td[19]/span[' + str(clickPosition) +']').click()
-        getCenter = driver.find_element_by_xpath('//*[@id="milkrunListTable"]/tbody/tr[' + str(i + 1) + ']/td[10]').text
+        getCenter = driver.find_element(By.XPATH,'//*[@id="milkrunListTable"]/tbody/tr[' + str(i + 1) + ']/td[10]').text
         driver.switch_to.window(driver.window_handles[1])
 
         waitTime('l')
@@ -144,7 +144,7 @@ def mainLogin():
             exit()
 
         driver.switch_to.window(driver.window_handles[0])
-        driver.find_element_by_xpath('//*[@id="milkrunListTable"]/tbody/tr[' + str(i + 1) + ']/td[19]/span[' + str(clickPosition+2) +']').click()  # 로그린 버튼 클릭
+        driver.find_element(By.XPATH,'//*[@id="milkrunListTable"]/tbody/tr[' + str(i + 1) + ']/td[19]/span[' + str(clickPosition+2) +']').click()  # 로그린 버튼 클릭
 
         waitTime('s')
 

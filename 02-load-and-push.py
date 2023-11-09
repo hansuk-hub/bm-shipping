@@ -1,5 +1,6 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import urllib.request
 
@@ -40,7 +41,12 @@ while (1):
 #############################################################################################
 
 
-driver: WebDriver = webdriver.Chrome('C:\chromedriver.exe')
+options = webdriver.ChromeOptions()
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option("useAutomationExtension", False)
+service = ChromeService(executable_path=r'C:\works\chromedriver.exe')
+
+driver = webdriver.Chrome(service=service, options=options)
 onlyCheckGo = 0
 
 
@@ -195,15 +201,15 @@ def mainLogin(getfTargetNum, getIndate):
 
 
 
-    driver.find_element_by_xpath("//select[@name='transportType']/option[@value='" + transportType + "']").click()
+    driver.find_element(By.XPATH,"//select[@name='transportType']/option[@value='" + transportType + "']").click()
     waitTime('s')
-    driver.find_element_by_xpath("//select[@name='transportType']/option[@value='" + transportType + "']").click()
+    driver.find_element(By.XPATH,"//select[@name='transportType']/option[@value='" + transportType + "']").click()
 
     allsum = 0  # 총 발주 수량
     codeChk = 0  # 상품명과 바코드 저장시 토글읠 위한 변수
     barCodeBox = []
 
-    spName = driver.find_elements_by_class_name('list-group-item')
+    spName = driver.find_elements(By.CLASS_NAME, 'list-group-item')
     for item in spName:
         chkText = item.text
         if (chkText.find('회송됩니다.') > 1):
@@ -222,7 +228,7 @@ def mainLogin(getfTargetNum, getIndate):
         makeLineNum = (ai * 2) + 1
         print("barcode Postion : " + str(ai))
         # insertQty = driver.find_element_by_xpath("/html/body/div/div[2]/div[2]/table[6]/tbody/tr[" + str( makeLineNum ) + "]/td[7]/input")
-        insertQty = driver.find_element_by_xpath(
+        insertQty = driver.find_element(By.XPATH,
             "//tbody/tr[" + str(makeLineNum) + "]/td[7]/input")
         insertQty.clear()
         # 수량 입력
@@ -233,21 +239,21 @@ def mainLogin(getfTargetNum, getIndate):
         # 수량 모자란경우
         if (GDQtyMode[ai] == 'less'):
             # 사유 입력
-            driver.find_element_by_xpath(
+            driver.find_element(By.XPATH,
                 "//tr[" + str(makeLineNum + 1) + "]/td[2]/button").click()
             # "/html/body/div/div[2]/div[2]/table[5]/tbody/tr["+ str(makeLineNum + 1) +"]/td[2]/button").click()
             waitTime('s')
             waitTime('s')
-            driver.find_element_by_xpath(
+            driver.find_element(By.XPATH,
                 "//select[@name='inSufficiencyCause1']/option[@value='32']").click()
             waitTime('s')
             # driver.find_element_by_xpath('/html/body/div/div[2]/div[2]/div[7]/div[2]/div/div[3]/button[3]').click()
-            driver.find_element_by_xpath("//button[3]").click()
+            driver.find_element(By.XPATH, "//button[3]").click()
             waitTime('s')
     # // *[ @ id = "causeModal"] / div[2] / div / div[3] / button[3]
 
     # 발주 확정
-    driver.find_element_by_css_selector(
+    driver.find_element(By.CSS_SELECTOR,
         '#app > div.contentsArea > div.scmContentsArea > div.tabBottom > button.btn.btn-warning.btn-save > span').click()
     waitTime('s')
     alert = driver.switch_to.alert
@@ -260,7 +266,7 @@ def mainLogin(getfTargetNum, getIndate):
         # driver.close()
     else:
         # 체크박스 클릭
-        getChkBox = driver.find_elements_by_name('checkAgree')
+        getChkBox = driver.find_elements(By.CLASS_NAME, 'checkAgree')
         for clickBox in getChkBox:
             clickBox.click()
 
@@ -271,7 +277,7 @@ def mainLogin(getfTargetNum, getIndate):
         waitTime('s')
 
         # 버튼 클릭하며 마무리
-        driver.find_element_by_id('btnPartnerAgree').click()
+        driver.find_element(By.ID, 'btnPartnerAgree').click()
         waitTime('s')
 
         while True:
@@ -294,12 +300,11 @@ def mainLogin(getfTargetNum, getIndate):
 # driver = webdriver.Chrome()
 
 driver.get('https://supplier.coupang.com/')
-driver.find_element_by_name('username').send_keys('manyalittle')
-driver.find_element_by_name('password').send_keys('wsjang5566#')
+driver.find_element(By.NAME, 'username').send_keys('manyalittle')
+driver.find_element(By.NAME,'password').send_keys('wsjang555#')
 waitTime('s')
-driver.find_element_by_class_name('btn.btn-primary').click()  # 로그린 버튼 클릭
+driver.find_element(By.CLASS_NAME,'btn.btn-primary').click()  # 로그린 버튼 클릭
 waitTime('s')
-
 
 def autoConfirm(getIndate):
     ## 해당 입고일 발주서 URL 가져오기
@@ -506,7 +511,7 @@ def autoConfirm(getIndate):
                     codeChk = 0  # 상품명과 바코드 저장시 토글읠 위한 변수
                     barCodeBox = []
 
-                    spName = driver.find_elements_by_class_name('list-group-item')
+                    spName = driver.find_elements(By.CLASS_NAME, 'list-group-item')
                     for item in spName:
                         chkText = item.text
                         if (chkText.find('회송됩니다.') > 1):
@@ -533,7 +538,7 @@ def autoConfirm(getIndate):
                     ## 입고 유형 선택택
                     while True:
                        try:
-                            driver.find_element_by_xpath(
+                            driver.find_element(By.XPATH,
                                 "//select[@name='transportType']/option[@value='" + transportType + "']").click()
                             break
                        except:
@@ -544,7 +549,7 @@ def autoConfirm(getIndate):
                     # 가끔 입고 유형이 잘못될때가 있다. 그래서 다시 한번 입고 유형을 클릭한다.
                     while True:
                         try:
-                            driver.find_element_by_xpath(
+                            driver.find_element(By.XPATH,
                                 "//select[@name='transportType']/option[@value='" + transportType + "']").click()
                             break
                         except:
@@ -577,7 +582,7 @@ def autoConfirm(getIndate):
 
                                 while True:
                                     try:
-                                        insertQty = driver.find_element_by_xpath(
+                                        insertQty = driver.find_element(By.XPATH,
                                             "//tbody/tr[" + str(makeLineNum) + "]/td[7]/input")
                                         insertQty.clear()
                                         # 수량 입력
@@ -591,17 +596,18 @@ def autoConfirm(getIndate):
                                 # 수량 모자란경우
                                 if (GDQtyMode[ai] == 'less'):
                                     # 사유 입력
-                                    driver.find_element_by_xpath(
+                                    driver.find_element(By.XPATH,
                                         "//tr[" + str(makeLineNum + 1) + "]/td[2]/button").click()
                                     waitTime('s')
-                                    driver.find_element_by_xpath(
+                                    driver.find_element(By.XPATH,
                                         "//select[@name='inSufficiencyCause1']/option[@value='32']").click()
                                     waitTime('s')
-                                    driver.find_element_by_xpath("//button[3]").click()
+                                    driver.find_element(By.XPATH,"//button[3]").click()
                                     waitTime('s')
 
-                            driver.find_element_by_css_selector(
+                            driver.find_element(By.CSS_SELECTOR,
                                 '#app > div.contentsArea > div.scmContentsArea > div.tabBottom > button.btn.btn-warning.btn-save > span').click()
+
                             waitTime('s')
 
                             alert = driver.switch_to.alert
@@ -641,77 +647,79 @@ def autoConfirm(getIndate):
                                 print('이미 발주확정 상태입니다')
                                 break
 
-                            while True:
-                                driver.get(curUrl)  # 저장한 확정 페이지 URL로
-                                waitTime('l')
+                   #          while True:
+                   #              driver.get(curUrl)  # 저장한 확정 페이지 URL로
+                   #              waitTime('l')
+                   #
+                   #              # 전체 체크 박스 클릭 ( 최종동의 )
+                   #              # try :
+                   #              #     driver.find_element_by_name('checkAgreeAll').click()
+                   #              #     if (driver.find_element_by_name('checkAgreeAll').is_selected() != True):
+                   #              #         waitTime('s')
+                   #              #         a = 0/ 0 #일부러 에러를 일으켜 다시 체크하도록 한다.
+                   #              #     print("최종체크박스 클릭중 에러러")
+                   #              #     break
+                   #              # except:
+                   #              #     waitTime('s')
+                   #              #     continue
+                   #
+                   # #-------------# 기존 체크 진행하기 시작---------------------------------------
+                   #              checkCnt = 0
+                   #              try:
+                   #                  # 체크 박스 클릭
+                   #
+                   #                  ###
+                   #
+                   #                  checkboxes = driver.find_element(By.XPATH, ".//*[@type='checkbox']")
+                   #                  for checkbox in checkboxes:
+                   #                      checkbox.click()
+                   #                      checkCnt = checkCnt + 1
+                   #                  getSource = driver.page_source
+                   #                  isMax6 = getSource.count('시즌상품')
+                   #                  isMax6 = isMax6 + getSource.count('사전 발주서 확인')
+                   #                  if isMax6 > 0:
+                   #                      maxCheck = 8
+                   #                  else:
+                   #                      maxCheck = 7
+                   #                  if checkCnt < maxCheck:
+                   #                      print("체크박스 체크 오류 페이지 리로드 ")
+                   #                      a = 0 / 0  # 에러를 발생 시킨다
+                   #
+                   #                  elif checkCnt == maxCheck:  # 5개 또는 6개 정상 체크시
+                   #                      break
+                   #              except:
+                   #                  waitTime('s')
+                   #                  continue
 
-                                # 전체 체크 박스 클릭 ( 최종동의 )
-                                # try :
-                                #     driver.find_element_by_name('checkAgreeAll').click()
-                                #     if (driver.find_element_by_name('checkAgreeAll').is_selected() != True):
-                                #         waitTime('s')
-                                #         a = 0/ 0 #일부러 에러를 일으켜 다시 체크하도록 한다.
-                                #     print("최종체크박스 클릭중 에러러")
-                                #     break
-                                # except:
-                                #     waitTime('s')
-                                #     continue
-
-                   #-------------# 기존 체크 진행하기 시작---------------------------------------
-                                checkCnt = 0
-                                try:
-                                    # 체크 박스 클릭
-
-                                    ###
-
-                                    checkboxes = driver.find_elements_by_xpath(".//*[@type='checkbox']")
-                                    for checkbox in checkboxes:
-                                        checkbox.click()
-                                        checkCnt = checkCnt + 1
-                                    getSource = driver.page_source
-                                    isMax6 = getSource.count('시즌상품')
-                                    isMax6 = isMax6 + getSource.count('사전 발주서 확인')
-                                    if isMax6 > 0:
-                                        maxCheck = 8
-                                    else:
-                                        maxCheck = 7
-                                    if checkCnt < maxCheck:
-                                        print("체크박스 체크 오류 페이지 리로드 ")
-                                        a = 0 / 0  # 에러를 발생 시킨다
-
-                                    elif checkCnt == maxCheck:  # 5개 또는 6개 정상 체크시
-                                        break
-                                except:
-                                    waitTime('s')
-                                    continue
-
-                            ############################################ 체크박스 클릭 + 1
-                            checkboxes = driver.find_elements_by_xpath("//input[@name='checkAgree']")
-
-                            for checkbox in checkboxes:
-                                if (checkbox.is_selected() != True):
-                                    checkbox.click()
-                            waitTime('s')
-                            ############################################ 체크박스 클릭 + 2
-                            checkboxes = driver.find_elements_by_xpath("//input[@name='checkAgree']")
-
-                            for checkbox in checkboxes:
-                                if (checkbox.is_selected() != True):
-                                    checkbox.click()
+                            # ############################################ 체크박스 클릭 + 1
+                            # checkboxes = driver.find_elements(By.XPATH,"//input[@name='checkAgree']")
+                            #
+                            # for checkbox in checkboxes:
+                            #     if (checkbox.is_selected() != True):
+                            #         checkbox.click()
+                            # waitTime('s')
+                            # ############################################ 체크박스 클릭 + 2
+                            # checkboxes = driver.find_elements(By.XPATH,"//input[@name='checkAgree']")
+                            #
+                            # for checkbox in checkboxes:
+                            #     if (checkbox.is_selected() != True):
+                            #         checkbox.click()
                     # -------------# 기존 체크 진행하기 끝---------------------------------------
+
+                            driver.find_element(By.XPATH, "//input[@name='checkAgreeAll']").click()
 
                             ###################################
                             waitTime('s')
 
                             # 버튼 클릭하며 마무리
-                            driver.find_element_by_id('btnPartnerAgree').click()
+                            driver.find_element(By.ID, 'btnPartnerAgree').click()
                             waitTime('l')
                             while True:
                                 try:
                                     # alert = driver.switch_to.alert
                                     # alert.accept()
 
-                                    driver.find_element_by_class_name('btn.primary-button.btn-lg').click()
+                                    driver.find_element(By.CLASS_NAME,'btn.primary-button.btn-lg').click()
                                     waitTime('s')
                                     break
                                 except:

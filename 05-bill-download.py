@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-
+from selenium.webdriver.common.by import By
 
 import urllib.request
 from bs4 import BeautifulSoup
@@ -31,7 +31,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_name(api, scope)
 client = gspread.authorize(creds)
 global centerCnt
 
-targetDir = 'c:/coupang/bm-shipping/milkrun/'
+targetDir = r'C:\\works\\bm-shipping\\document\\milkrun\\'
 downloadDir = 'C:/Users/tempe/Downloads/'
 
 
@@ -54,7 +54,7 @@ while (1):
 
 while True :
     try :
-        driver: WebDriver = webdriver.Chrome('C:\chromedriver.exe')
+        driver: WebDriver = webdriver.Chrome('C:\works\chromedriver.exe')
         action = ActionChains(driver)
         break
     except :
@@ -70,12 +70,11 @@ def waitTime(stayTime):
 
 def mainLogin():
     driver.get('https://supplier.coupang.com/')
-    driver.find_element_by_name('username').send_keys('manyalittle')
-    driver.find_element_by_name('password').send_keys('wsjang5566#')
+    driver.find_element(By.NAME, 'username').send_keys('manyalittle')
+    driver.find_element(By.NAME, 'password').send_keys('wsjang555#')
     waitTime('s')
-    driver.find_element_by_class_name('btn.btn-primary').click()  # 로그린 버튼 클릭
+    driver.find_element(By.CLASS_NAME, 'btn.btn-primary').click()  # 로그린 버튼 클릭
     waitTime('s')
-
 
 
     try:
@@ -88,18 +87,18 @@ def mainLogin():
     waitTime('s')
 
     #입고예정일 클릭
-    driver.find_element_by_id('searchDateType').click()
+    driver.find_element(By.ID,'searchDateType').click()
     action.key_down(Keys.ARROW_DOWN).perform()
     waitTime('s')
 
     #날짜 설정
-    driver.find_element_by_xpath("//input[@name='searchStartDate']").clear()
-    driver.find_element_by_xpath("//input[@name='searchStartDate']").send_keys(getIndate)
-    driver.find_element_by_xpath("//input[@name='searchEndDate']").clear()
-    driver.find_element_by_xpath("//input[@name='searchEndDate']").send_keys(getIndate)
+    driver.find_element(By.XPATH,"//input[@name='searchStartDate']").clear()
+    driver.find_element(By.XPATH,"//input[@name='searchStartDate']").send_keys(getIndate)
+    driver.find_element(By.XPATH,"//input[@name='searchEndDate']").clear()
+    driver.find_element(By.XPATH,"//input[@name='searchEndDate']").send_keys(getIndate)
     waitTime('s')
     #센터 설정
-    getAllText = driver.find_element_by_xpath("//select[@id='centerCode']")
+    getAllText = driver.find_element(By.XPATH,"//select[@id='centerCode']")
     getOneText = str(getAllText.text).replace(' ','').replace('\n',' ').split()
 
 
@@ -182,12 +181,12 @@ def mainLogin():
                 print ( "# " + getCenter + '센터 클릭 ')
                 break
 
-        driver.find_element_by_xpath('//*[ @id="centerCode"]').click()
-        driver.find_element_by_xpath('//*[ @id="centerCode"]/option[' + str( centerCnt ) +']').click()
+        driver.find_element(By.XPATH,'//*[ @id="centerCode"]').click()
+        driver.find_element(By.XPATH,'//*[ @id="centerCode"]/option[' + str( centerCnt ) +']').click()
         waitTime('s')
 
         #검색 버튼 클릭
-        driver.find_element_by_id('search').click()
+        driver.find_element(By.ID, 'search').click()
         waitTime('s')
         dealCount = driver.page_source
         dealCount = ( dealCount.count('일반') -4)  /2
@@ -195,11 +194,11 @@ def mainLogin():
         waitTime('s')
 
         #전체 선택
-        driver.find_element_by_name('checkAll').click()
+        driver.find_element(By.NAME, 'checkAll').click()
         waitTime('s')
 
         # 다운로드
-        driver.find_element_by_id('btn-confirm-download').click()
+        driver.find_element(By.ID, 'btn-confirm-download').click()
 
         alert = driver.switch_to.alert
         if (alert):

@@ -72,7 +72,7 @@ def mainLogin():
     action = ActionChains(driver)
     driver.get('https://supplier.coupang.com/')
     driver.find_element(By.NAME, 'username').send_keys('manyalittle')
-    driver.find_element(By.NAME, 'password').send_keys('wsjang555#')
+    driver.find_element(By.NAME, 'password').send_keys('wsjang5996#')
     waitTime('s')
     driver.find_element(By.CLASS_NAME, 'btn.btn-primary').click()  # 로그린 버튼 클릭
     waitTime('s')
@@ -153,9 +153,14 @@ def mainLogin():
             while 1:
                 try:
                     getSheet = doc.worksheet(oneSheet.title)
-                    if getSheet.cell(2, 13).value is not None:
-                        print(oneSheet.title + " 의 시트를 저장합니다.")
-                        checkedSheet.append(oneSheet.title)
+                    curLastLine = len(getSheet.col_values(12))
+                    getAmount = int(getSheet.cell( curLastLine,12).value)
+
+                    if getAmount > 0 :
+                        if getSheet.cell(2, 13).value is not None  :
+                            print(oneSheet.title + " 의 시트를 저장합니다.")
+                            checkedSheet.append(oneSheet.title)
+
                     break
                 except:
                     continue
@@ -254,9 +259,6 @@ def mainLogin():
                 pickCenter = 'XRC05'
             elif pickCenter == '곤지암2(RC)':
                 pickCenter = '곤지암2'
-
-
-
 
             while True:
                 try:
